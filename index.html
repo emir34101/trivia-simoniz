@@ -167,12 +167,17 @@ button:disabled {
   </div>
   <div class="card hidden" id="ruleta">
   <h1>🎡 Gira la ruleta</h1>
-    
-<canvas id="wheel" width="300" height="300"></canvas>
   <canvas id="wheel" width="300" height="300"></canvas>
-  <button onclick="girarRuleta()">GIRAR</button>
+
+  <button id="btnGirar" onclick="girarRuleta()">GIRAR</button>
+
   <p id="premioFinal"></p>
+
+  <button id="btnVolver" class="hidden" onclick="volverInicio()">
+    Volver al inicio
+  </button>
 </div>
+
 
 
 
@@ -315,30 +320,37 @@ function dibujarRuleta(rotacion = 0, ganador = null) {
   premios.forEach((premio, i) => {
     ctx.beginPath();
 
-    // 🎨 COLORES INTERCALADOS
-    const colores = ["#FFD100", "#000000"];
-    ctx.fillStyle = colores[i % 2];
+    // 🎨 3 COLORES INTERCALADOS
+    const colores = ["#FFD100", "#000000", "#FFFFFF"];
+    const colorSector = colores[i % colores.length];
+    ctx.fillStyle = colorSector;
 
     // 🟢 PREMIO GANADOR
     if (i === ganador) {
-      ctx.fillStyle = "#00E676"; // VERDE GANADOR
+      ctx.fillStyle = "#00E676";
     }
 
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, 140, angulo * i, angulo * (i + 1));
     ctx.fill();
 
-    // TEXTO
+    // 🔤 TEXTO
     ctx.save();
     ctx.rotate(angulo * i + angulo / 2);
-    ctx.fillStyle = "#000";
-    ctx.font = "bold 14px Montserrat";
-    ctx.fillText(premio.nombre, 40, 5);
+
+    // Texto blanco si fondo es negro, si no negro
+    ctx.fillStyle = (colorSector === "#000000") ? "#FFFFFF" : "#000000";
+
+    ctx.font = "bold 18px Montserrat"; // 👈 TEXTO MÁS GRANDE
+    ctx.textAlign = "right";
+    ctx.fillText(premio.nombre, 120, 8);
+
     ctx.restore();
   });
 
   ctx.restore();
 }
+
 
 
 function girarRuleta() {
