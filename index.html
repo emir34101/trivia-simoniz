@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Trivia Simoniz</title>
+  <style>
+    :root {
+      --simoniz-red: #E10600;
+      --simoniz-black: #000000;
+      --simoniz-gray: #F2F2F2;
+      --simoniz-white: #FFFFFF;
+    }
+
+    body {
+      margin: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background: linear-gradient(180deg, #000000, #1a1a1a);
+      color: var(--simoniz-white);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+
+    .card {
+      background: #111;
+      width: 100%;
+      max-width: 480px;
+      border-radius: 20px;
+      padding: 30px;
+      box-shadow: 0 20px 40px rgba(0,0,0,.6);
+      animation: fadeIn .6s ease;
+    }
+
+    h1 {
+      text-align: center;
+      color: var(--simoniz-red);
+      margin-bottom: 10px;
+    }
+
+    p {
+      text-align: center;
+      color: #ccc;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      margin: 10px 0;
+      border-radius: 10px;
+      border: none;
+      font-size: 16px;
+    }
+
+    button {
+      width: 100%;
+      padding: 15px;
+      background: var(--simoniz-red);
+      color: white;
+      font-size: 18px;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      margin-top: 15px;
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(225,6,0,.4);
+    }
+
+    .option {
+      background: #1f1f1f;
+      padding: 14px;
+      border-radius: 12px;
+      margin: 10px 0;
+      cursor: pointer;
+      transition: background .2s ease, transform .1s ease;
+    }
+
+    .option.correct {
+      background: #1f7a1f;
+      box-shadow: 0 0 15px rgba(0,255,0,.4);
+    }
+
+    .option.incorrect {
+      background: #8b1a1a;
+      box-shadow: 0 0 15px rgba(255,0,0,.4);
+    }
+
+    .option.disabled {
+      pointer-events: none;
+      opacity: .8;
+    }
+
+    .option:hover {
+      background: #2a2a2a;
+      transform: scale(1.02);
+    }
+
+    .hidden { display: none; }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="card" id="registro">
+    <h1>Trivia Simoniz</h1>
+    <p>Demuestra cuánto sabes del cuidado automotriz</p>
+    <input id="nombre" placeholder="Nombre completo" />
+    <input id="telefono" placeholder="Teléfono" />
+    <input id="correo" placeholder="Correo electrónico" />
+    <button onclick="iniciarTrivia()">Comenzar</button>
+  </div>
+
+  <div class="card hidden" id="trivia">
+    <h1 id="categoria"></h1>
+    <p id="pregunta"></p>
+    <div id="opciones"></div>
+  </div>
+
+  <div class="card hidden" id="resultado">
+    <h1 id="tituloResultado"></h1>
+    <p id="mensajeResultado"></p>
+    <button onclick="location.reload()">Nueva participación</button>
+  </div>
+
+<script>
+const preguntas = {
+  "SIMONIZ & MARCA": [
+    { pregunta: "¿Qué representa Simoniz como marca?", opciones: ["Solo limpieza del vehículo", "Cuidado, protección y orgullo por lo que te mueve", "Productos rápidos y económicos"], correcta: 1 },
+    { pregunta: "Simoniz es una marca reconocida principalmente por:", opciones: ["Accesorios automotrices", "Productos de limpieza, brillo y protección", "Repuestos mecánicos"], correcta: 1 },
+    { pregunta: "¿Cuál es uno de los diferenciales clave de Simoniz?", opciones: ["Fragancias llamativas", "Protección y acabado profesional", "Bajo precio únicamente"], correcta: 1 }
+  ],
+  "CUIDADO EXTERIOR": [
+    { pregunta: "¿Para qué sirve la Silicona UV3 Simoniz?", opciones: ["Limpiar vidrios", "Proteger y dar brillo a superficies plásticas, de vinilo y caucho del auto", "Desengrasar el motor"], correcta: 1 },
+    { pregunta: "¿Qué beneficio clave aporta un producto con protección UV?", opciones: ["Reduce el polvo", "Evita la decoloración por el sol", "Elimina malos olores"], correcta: 1 },
+    { pregunta: "¿Qué producto usarías primero en una rutina de lavado exterior?", opciones: ["Cera", "Shampoo con Cera para autos", "Silicona"], correcta: 1 }
+  ],
+  "CUIDADO INTERIOR": [
+    { pregunta: "¿Por qué es importante usar productos especializados para el interior del vehículo?", opciones: ["Para que huela fuerte", "Para no dañar superficies delicadas", "Solo por estética"], correcta: 1 },
+    { pregunta: "¿Qué superficie NO debería limpiarse con productos abrasivos?", opciones: ["Tablero", "Tapetes de caucho", "Rines"], correcta: 0 },
+    { pregunta: "Un buen limpiador interior Simoniz se caracteriza por:", opciones: ["Brillo excesivo", "Limpieza efectiva + cuidado del material", "Espuma abundante"], correcta: 1 }
+  ],
+  "MITOS Y VERDADES": [
+    { pregunta: "¿Es verdad que cualquier detergente sirve para lavar el carro?", opciones: ["Sí", "No", "Solo los líquidos"], correcta: 1 },
+    { pregunta: "¿La cera solo sirve para que el carro brille?", opciones: ["Sí", "No, también protege la pintura", "Depende del color del carro"], correcta: 1 },
+    { pregunta: "¿Usar productos incorrectos puede dañar el acabado del vehículo?", opciones: ["No, todos limpian igual", "Sí, especialmente a largo plazo", "Solo en carros nuevos"], correcta: 1 }
+  ],
+  "BONUS GOLF / LIFESTYLE": [
+    { pregunta: "Simoniz comparte con el golf una misma filosofía:", opciones: ["Velocidad", "Precisión y cuidado por el detalle", "Competencia extrema"], correcta: 1 },
+    { pregunta: "¿Qué tienen en común un carro bien cuidado y un buen swing?", opciones: ["Fuerza", "Técnica y constancia", "Suerte"], correcta: 1 },
+    { pregunta: "¿Por qué Simoniz encaja bien en un entorno lifestyle como el golf?", opciones: ["Por el precio", "Por la estética, el cuidado y el orgullo personal", "Por moda"], correcta: 1 }
+  ]
+};
+
+let categorias = Object.keys(preguntas);
+let index = 0;
+let aciertos = 0;
+let seleccionadas = categorias.map(cat => {
+  const banco = preguntas[cat];
+  return banco[Math.floor(Math.random() * banco.length)];
+});
+
+function iniciarTrivia() {
+  document.getElementById('registro').classList.add('hidden');
+  document.getElementById('trivia').classList.remove('hidden');
+  mostrarPregunta();
+}
+
+function mostrarPregunta() {
+  const cat = categorias[index];
+  const q = seleccionadas[index];
+  document.getElementById('categoria').innerText = cat;
+  document.getElementById('pregunta').innerText = q.pregunta;
+  const cont = document.getElementById('opciones');
+  cont.innerHTML = '';
+
+  q.opciones.forEach((op, i) => {
+    const div = document.createElement('div');
+    div.className = 'option';
+    div.innerText = op;
+    div.onclick = () => responder(i);
+    cont.appendChild(div);
+  });
+}
+
+function responder(i) {
+  const opcionesDivs = document.querySelectorAll('.option');
+  const correcta = seleccionadas[index].correcta;
+
+  opcionesDivs.forEach((div, idx) => {
+    div.classList.add('disabled');
+    if (idx === correcta) div.classList.add('correct');
+    if (idx === i && i !== correcta) div.classList.add('incorrect');
+  });
+
+  if (i === correcta) aciertos++;
+
+  setTimeout(() => {
+    index++;
+    if (index < categorias.length) mostrarPregunta();
+    else mostrarResultado();
+  }, 1200);
+}
+
+function mostrarResultado() {
+  document.getElementById('trivia').classList.add('hidden');
+  document.getElementById('resultado').classList.remove('hidden');
+
+  const gana = aciertos >= 4;
+  document.getElementById('tituloResultado').innerText = gana ? '¡Ganaste!' : 'Gracias por participar';
+  document.getElementById('mensajeResultado').innerText = gana ? 'Presenta este mensaje y reclama tu premio Simoniz.' : 'Sigue cuidando tu vehículo con Simoniz.';
+}
+// === ENVÍO DE DATOS A GOOGLE SHEETS ===
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmpWSyy-M_zTNWHGvHnYAHO7TXR_VdTWCPgWijauk7F1e1HLVGs6GpbTPhSXpJeiJQ/exec";
+
+function enviarDatos(resultado) {
+  const data = {
+    nombre: document.getElementById('nombre').value,
+    telefono: document.getElementById('telefono').value,
+    correo: document.getElementById('correo').value,
+    aciertos: aciertos,
+    resultado: resultado
+  };
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+}
+
+// Hook al resultado final
+const _mostrarResultado = mostrarResultado;
+mostrarResultado = function() {
+  const gana = aciertos >= 4;
+  enviarDatos(gana ? 'GANA' : 'NO GANA');
+  _mostrarResultado();
+}
+</script>
+</body>
+</html>
