@@ -412,24 +412,23 @@ function volverInicio() {
   location.reload(); // reinicio limpio para evento
 }
 function enviarDatos(resultado, premio = "") {
-  fetch(SCRIPT_URL, {
+  const formData = new FormData();
+  formData.append("nombre", nombreInput.value);
+  formData.append("telefono", telefonoInput.value);
+  formData.append("correo", correoInput.value);
+  formData.append("aciertos", aciertos);
+  formData.append("resultado", resultado);
+  formData.append("premio", premio);
+
+  fetch("https://script.google.com/macros/s/AKfycbzFulhboMNintLHK0IVZueWUDPkbMiQDeR7kn9mlOC6EV6Re9buHE901HIUWUPXJinp/exec", {
     method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      nombre: nombreInput.value,
-      telefono: telefonoInput.value,
-      correo: correoInput.value,
-      aciertos: aciertos,
-      resultado: resultado,
-      premio: premio,
-      fecha: new Date().toISOString()
-    })
+    body: formData
   })
-  .then(() => console.log("Datos enviados a Sheets"))
-  .catch(err => console.error("Error enviando datos", err));
+  .then(r => r.text())
+  .then(txt => console.log("Respuesta Sheets:", txt))
+  .catch(err => console.error("Error:", err));
 }
+
 
 
 
