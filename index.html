@@ -186,6 +186,9 @@ console.log("JS cargado");
 const nombreInput = document.getElementById("nombre");
 const telefonoInput = document.getElementById("telefono");
 const correoInput = document.getElementById("correo");
+// === GOOGLE APPS SCRIPT ===
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWb1iqA-ZfSIMCh0d-eC41_7kVGpiAMZ8SQflsga1q7OgyGIOUMd_IalCJmYHugNtl/exec";
+
 
 const preguntas = {
   "SIMONIZ & MARCA": [
@@ -408,6 +411,24 @@ document.getElementById("btnVolver").classList.remove("hidden");
 }
 function volverInicio() {
   location.reload(); // reinicio limpio para evento
+}
+function enviarDatos(resultado, premio = "") {
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      nombre: nombreInput.value,
+      telefono: telefonoInput.value,
+      correo: correoInput.value,
+      aciertos: aciertos,
+      resultado: resultado,
+      premio: premio,
+      fecha: new Date().toISOString()
+    })
+  });
 }
 
 
