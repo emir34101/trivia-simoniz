@@ -195,12 +195,12 @@ let girando = false;
 let seleccionadas = categorias.map(cat => {
   const banco = preguntas[cat];
   return banco[Math.floor(Math.random() * banco.length)];
-let inventario = [
-  { nombre: "Cera Simoniz", cantidad: 10 },
-  { nombre: "Silicona UV3", cantidad: 8 },
-  { nombre: "Ambientador", cantidad: 15 },
-  { nombre: "Descuento 10%", cantidad: 20 }
-];
+let inventario = [];
+
+async function cargarInventario() {
+  const res = await fetch("https://script.google.com/macros/s/AKfycbwsP_VVG4ayxnttv0Ger5ye-c_GIyYk0gbQi274oU9fuEL67_pkAuG2B_CMkyKfjA-G/exec");
+  inventario = await res.json();
+}
 });
 
 function iniciarTrivia() {
@@ -246,18 +246,44 @@ function responder(i) {
   }, 1600);
 }
 
-function mostrarResultado() {
+async function mostrarResultado() {
   document.getElementById('trivia').classList.add('hidden');
+  document.getElementById('resultado').classList.remove('hidden');
 
-  if (aciertos >= 3) {
-    document.getElementById('ruleta').classList.remove('hidden');
-    dibujarRuleta();
+  const gana = aciertos >= 3; // o el número que definas
+
+  if (gana) {
+    await cargarInventario();   // 👈 AQUÍ
+    dibujarRuleta();            // 👈 AQUÍ
+
+    document.getElementById('tituloResultado').innerText = '¡Ganaste premio!';
+    document.getElementById('mensajeResultado').innerText =
+      'Gira la ruleta y descubre tu premio Simoniz.';
   } else {
-    document.getElementById('resultado').classList.remove('hidden');
-    document.getElementById('tituloResultado').innerText = "Gracias por participar";
-    document.getElementById('mensajeResultado').innerText = "Sigue cuidando tu vehículo con Simoniz.";
+    document.getElementById('tituloResultado').innerText = 'Gracias por participar';
+    document.getElementById('mensajeResultado').innerText =
+      'Sigue cuidando tu vehículo con Simoniz.';
   }
 }
+
+function asignarPremio(index) {
+  const premio = inventario[index];
+
+  fetch("TU_URL_DE_APPS_SCRIPT", {
+    method: "POST",
+    body: JSON.stringify({
+      nombre: nombre,
+      telefono: telefono,
+      correo: correo,
+      aciertos: aciertos,
+      premio: premio.nombre
+    })
+  });
+
+  document.getElementById("premioFinal").innerText =
+    "🎉 Ganaste: " + premio.nombre;
+}
+
 function dibujarRuleta(rotacion = 0) {
   const premios = premiosDisponibles();
   const canvas = document.getElementById("wheel");
