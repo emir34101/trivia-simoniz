@@ -1,411 +1,244 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Trivia Simoniz</title>
-  <style>
-    :root {
-      --simoniz-yellow: #FFD100;
-  --simoniz-black: #000000;
-  --simoniz-gray: #F2F2F2;
-  --simoniz-white: #FFFFFF;
-    }
+<meta charset="UTF-8">
+<title>Trivia + Ruleta</title>
 
-    body {
-      margin: 0;
-      font-family: 'Montserrat', Arial, sans-serif;
-      background: linear-gradient(180deg, #000000, #1a1a1a);
-      color: var(--simoniz-white);
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-    }
-
-    .card {
-      background: #111;
-      width: 100%;
-      max-width: 480px;
-      border-radius: 20px;
-      padding: 30px;
-      box-shadow: 0 20px 40px rgba(0,0,0,.6);
-      animation: fadeIn .6s ease;
-    }
-
-    h1 {
+<style>
+body {
+  background: #111;
+  color: white;
+  font-family: Arial, sans-serif;
   text-align: center;
-  color: var(--simoniz-yellow);
-  margin-bottom: 10px;
 }
 
-    p {
-      text-align: center;
-      color: #ccc;
-    }
+.hidden { display: none; }
 
-    input {
-      width: 100%;
-      padding: 14px;
-      margin: 10px 0;
-      border-radius: 10px;
-      border: none;
-      font-size: 16px;
-    }
-
-    button {
-      width: 100%;
-      padding: 15px;
-      background: var(--simoniz-yellow);
-      color: #000;
-      font-size: 18px;
-      font-weight: 700;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      margin-top: 15px;
-      transition: transform .2s ease, box-shadow .2s ease;
-    }
-
-    button:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(255,209,0,.5);
-    }
-
-    .option {
-      background: #1f1f1f;
-      padding: 14px;
-      border-radius: 12px;
-      margin: 10px 0;
-      cursor: pointer;
-      transition: background .4s ease, transform .2s ease;
-    }
-
-    .option.correct {
-      background: #1f7a1f;
-      box-shadow: 0 0 15px rgba(0,255,0,.4);
-    }
-
-    .option.incorrect {
-      background: #C62828; /* Rojo profundo */
-  box-shadow: 0 0 12px rgba(198,40,40,.6);
-  color: #fff;
-    }
-
-    .option.disabled {
-      pointer-events: none;
-      opacity: .8;
-    }
-
-    .option:hover {
-      background: #2a2a2a;
-      transform: scale(1.02);
-    }
-
-    .hidden { display: none; }
-    .logo {
-  text-align: center;
-  margin-bottom: 15px;
+button {
+  padding: 12px 20px;
+  font-size: 18px;
+  cursor: pointer;
+  margin-top: 15px;
 }
 
-.logo img {
-  max-width: 160px;
-  width: 100%;
-}
-button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-    .puntero {
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-bottom: 24px solid red;
-  z-index: 10;
-}
-#ruleta {
-  position: relative;
+.opcion {
+  display: block;
+  margin: 10px auto;
+  padding: 10px;
+  width: 70%;
+  font-size: 18px;
 }
 
+.correcta { background: green; color: white; }
+.incorrecta { background: red; color: white; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-  </style>
+canvas {
+  margin-top: 20px;
+}
+</style>
 </head>
+
 <body>
 
-
-  <div class="card" id="registro">
-      <div class="logo">
-  <img src="https://bogota.gov.co/sites/default/files/styles/1050px/public/2020-05/simoniz-dos.png" alt="Simoniz Logo">
-</div>
-    <h1>Trivia</h1>
-    <p>Demuestra cuánto sabes del cuidado automotriz</p>
-    <input id="nombre" placeholder="Nombre completo" />
-    <input id="telefono" placeholder="Teléfono" />
-    <input id="correo" placeholder="Correo electrónico" />
-    <button onclick="iniciarTrivia()">Comenzar</button>
-  </div>
-
-  <div class="card hidden" id="trivia">
-    <h1 id="categoria"></h1>
-    <p id="pregunta"></p>
-    <div id="opciones"></div>
-  </div>
-
-  <div class="card hidden" id="resultado">
-    <h1 id="tituloResultado"></h1>
-    <p id="mensajeResultado"></p>
-    <button onclick="location.reload()">Nueva participación</button>
-  </div>
-  <div class="card hidden" id="ruleta">
-  <h1>🎡 Gira la ruleta</h1>
-  <canvas id="wheel" width="300" height="300"></canvas>
-
-  <button id="btnGirar" onclick="girarRuleta()">GIRAR</button>
-
-  <p id="premioFinal"></p>
-
-  <button id="btnVolver" class="hidden" onclick="volverInicio()">
-    Volver al inicio
-  </button>
+<!-- ================= FORMULARIO ================= -->
+<div id="formulario">
+  <h2>Participa y gana</h2>
+  <input id="nombre" placeholder="Nombre"><br><br>
+  <input id="telefono" placeholder="Teléfono"><br><br>
+  <input id="correo" placeholder="Correo"><br><br>
+  <button onclick="iniciarTrivia()">Comenzar</button>
 </div>
 
+<!-- ================= TRIVIA ================= -->
+<div id="trivia" class="hidden">
+  <h2 id="pregunta"></h2>
+  <div id="opciones"></div>
+</div>
 
+<!-- ================= MENSAJE ================= -->
+<div id="resultado" class="hidden">
+  <h2 id="mensajeResultado"></h2>
+  <button onclick="mostrarRuleta()">Girar la ruleta</button>
+</div>
 
+<!-- ================= RULETA ================= -->
+<div id="ruleta" class="hidden">
+  <h2>🎡 Gira la ruleta</h2>
+  <canvas id="canvas" width="400" height="400"></canvas><br>
+  <button onclick="girarRuleta()">GIRAR</button>
+</div>
+
+<!-- ================= PREMIO ================= -->
+<div id="premioFinal" class="hidden">
+  <h2 id="textoPremio"></h2>
+  <button onclick="reiniciar()">Volver al inicio</button>
+</div>
 
 <script>
-console.log("JS cargado");
-const preguntas = {
-  "SIMONIZ & MARCA": [
-    { pregunta: "¿Qué representa Simoniz como marca?", opciones: ["Solo limpieza del vehículo", "Cuidado, protección y orgullo por lo que te mueve", "Productos rápidos y económicos"], correcta: 1 },
-    { pregunta: "Simoniz es una marca reconocida principalmente por:", opciones: ["Accesorios automotrices", "Productos de limpieza, brillo y protección", "Repuestos mecánicos"], correcta: 1 },
-    { pregunta: "¿Cuál es uno de los diferenciales clave de Simoniz?", opciones: ["Fragancias llamativas", "Protección y acabado profesional", "Bajo precio únicamente"], correcta: 1 }
-  ],
-  "CUIDADO EXTERIOR": [
-    { pregunta: "¿Para qué sirve la Silicona UV3 Simoniz?", opciones: ["Limpiar vidrios", "Proteger y dar brillo a superficies plásticas, de vinilo y caucho del auto", "Desengrasar el motor"], correcta: 1 },
-    { pregunta: "¿Qué beneficio clave aporta un producto con protección UV?", opciones: ["Reduce el polvo", "Evita la decoloración por el sol", "Elimina malos olores"], correcta: 1 },
-    { pregunta: "¿Qué producto usarías primero en una rutina de lavado exterior?", opciones: ["Cera", "Shampoo con Cera para autos", "Silicona"], correcta: 1 }
-  ],
-  "CUIDADO INTERIOR": [
-    { pregunta: "¿Por qué es importante usar productos especializados para el interior del vehículo?", opciones: ["Para que huela fuerte", "Para no dañar superficies delicadas", "Solo por estética"], correcta: 1 },
-    { pregunta: "¿Qué superficie NO debería limpiarse con productos abrasivos?", opciones: ["Tablero", "Tapetes de caucho", "Rines"], correcta: 0 },
-    { pregunta: "Un buen limpiador interior Simoniz se caracteriza por:", opciones: ["Brillo excesivo", "Limpieza efectiva + cuidado del material", "Espuma abundante"], correcta: 1 }
-  ],
-  "MITOS Y VERDADES": [
-    { pregunta: "¿Es verdad que cualquier detergente sirve para lavar el carro?", opciones: ["Sí", "No", "Solo los líquidos"], correcta: 1 },
-    { pregunta: "¿La cera solo sirve para que el carro brille?", opciones: ["Sí", "No, también protege la pintura", "Depende del color del carro"], correcta: 1 },
-    { pregunta: "¿Usar productos incorrectos puede dañar el acabado del vehículo?", opciones: ["No, todos limpian igual", "Sí, especialmente a largo plazo", "Solo en carros nuevos"], correcta: 1 }
-  ],
-  "BONUS GOLF / LIFESTYLE": [
-    { pregunta: "Simoniz comparte con el golf una misma filosofía:", opciones: ["Velocidad", "Precisión y cuidado por el detalle", "Competencia extrema"], correcta: 1 },
-    { pregunta: "¿Qué tienen en común un carro bien cuidado y un buen swing?", opciones: ["Fuerza", "Técnica y constancia", "Suerte"], correcta: 1 },
-    { pregunta: "¿Por qué Simoniz encaja bien en un entorno lifestyle como el golf?", opciones: ["Por el precio", "Por la estética, el cuidado y el orgullo personal", "Por moda"], correcta: 1 }
-  ]
-};
-let categorias = Object.keys(preguntas);
-let index = 0;
+/* ================= CONFIG ================= */
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWb1iqA-ZfSIMCh0d-eC41_7kVGpiAMZ8SQflsga1q7OgyGIOUMd_IalCJmYHugNtl/exec;
+
+/* ================= FORM ================= */
+const nombreInput = document.getElementById("nombre");
+const telefonoInput = document.getElementById("telefono");
+const correoInput = document.getElementById("correo");
+
+/* ================= TRIVIA ================= */
+const preguntas = [
+  {
+    p: "¿Capital de Colombia?",
+    opciones: ["Medellín", "Bogotá", "Cali"],
+    correcta: 1
+  },
+  {
+    p: "¿2 + 2?",
+    opciones: ["3", "4", "5"],
+    correcta: 1
+  },
+  {
+    p: "¿Color del sol?",
+    opciones: ["Amarillo", "Azul", "Verde"],
+    correcta: 0
+  }
+];
+
+let indice = 0;
 let aciertos = 0;
+
+/* ================= RULETA ================= */
+let premios = [
+  { nombre: "Premio 1", color: "#FFD700" },
+  { nombre: "Premio 2", color: "#000000" },
+  { nombre: "Premio 3", color: "#FFFFFF" }
+];
+
 let anguloActual = 0;
-let girando = false;
-let inventario = [];
+const canvas = document.getElementById("canvas");
+const ctx = canvas.getContext("2d");
 
-// ====== SELECCIÓN ALEATORIA (CORREGIDO) ======
-let seleccionadas = categorias.map(cat => {
-  const banco = preguntas[cat];
-  return banco[Math.floor(Math.random() * banco.length)];
-});
+/* ================= FLUJO ================= */
 
-// ====== INVENTARIO ======
-async function cargarInventario() {
-  const res = await fetch("https://script.google.com/macros/s/AKfycbwsP_VVG4ayxnttv0Ger5ye-c_GIyYk0gbQi274oU9fuEL67_pkAuG2B_CMkyKfjA-G/exec");
-  inventario = await res.json();
-}
-
-// ====== INICIAR ======
 function iniciarTrivia() {
-  console.log("Trivia iniciada");
-  document.getElementById('registro').classList.add('hidden');
-  document.getElementById('trivia').classList.remove('hidden');
+  if (!nombreInput.value || !telefonoInput.value) return alert("Completa los datos");
+  document.getElementById("formulario").classList.add("hidden");
+  document.getElementById("trivia").classList.remove("hidden");
   mostrarPregunta();
 }
 
-// ====== MOSTRAR PREGUNTA ======
 function mostrarPregunta() {
-  const cat = categorias[index];
-  const q = seleccionadas[index];
-
-  document.getElementById('categoria').innerText = cat;
-  document.getElementById('pregunta').innerText = q.pregunta;
-
-  const cont = document.getElementById('opciones');
-  cont.innerHTML = '';
+  const q = preguntas[indice];
+  document.getElementById("pregunta").innerText = q.p;
+  const cont = document.getElementById("opciones");
+  cont.innerHTML = "";
 
   q.opciones.forEach((op, i) => {
-    const div = document.createElement('div');
-    div.className = 'option';
-    div.innerText = op;
-    div.onclick = () => responder(i);
-    cont.appendChild(div);
+    const btn = document.createElement("button");
+    btn.className = "opcion";
+    btn.innerText = op;
+    btn.onclick = () => validarRespuesta(btn, i);
+    cont.appendChild(btn);
   });
 }
 
-// ====== RESPUESTA ======
-function responder(i) {
-  const opciones = document.querySelectorAll('.option');
-  const correcta = seleccionadas[index].correcta;
+function validarRespuesta(btn, i) {
+  const correcta = preguntas[indice].correcta;
+  const botones = document.querySelectorAll(".opcion");
 
-  opciones.forEach((div, idx) => {
-    div.classList.add('disabled');
-    if (idx === correcta) div.classList.add('correct');
-    if (idx === i && i !== correcta) div.classList.add('incorrect');
+  botones.forEach((b, idx) => {
+    if (idx === correcta) b.classList.add("correcta");
+    else if (idx === i) b.classList.add("incorrecta");
+    b.disabled = true;
   });
 
   if (i === correcta) aciertos++;
 
   setTimeout(() => {
-    index++;
-    if (index < categorias.length) mostrarPregunta();
-    else mostrarResultado();
-  }, 1600);
-}
-
-// ====== RESULTADO ======
-async function mostrarResultado() {
-  document.getElementById('trivia').classList.add('hidden');
-
-  const gana = aciertos >= 3;
-
-  if (gana) {
-    // 👇 MUESTRA RULETA (NO resultado)
-    document.getElementById('ruleta').classList.remove('hidden');
-
-    await cargarInventario();
-    dibujarRuleta();
-
-  } else {
-    // 👇 SOLO SI PIERDE
-    document.getElementById('resultado').classList.remove('hidden');
-    document.getElementById('tituloResultado').innerText = 'Gracias por participar';
-    document.getElementById('mensajeResultado').innerText =
-      'Sigue cuidando tu vehículo con Simoniz.';
-  }
-}
-
-// ====== RULETA ======
-function premiosDisponibles() {
-  return inventario.filter(p => p.stock > 0);
-}
-
-function dibujarRuleta(rotacion = 0, ganador = null) {
-  const premios = premiosDisponibles();
-  const canvas = document.getElementById("wheel");
-  const ctx = canvas.getContext("2d");
-
-  const total = premios.length;
-  const angulo = (2 * Math.PI) / total;
-
-  ctx.clearRect(0, 0, 300, 300);
-  ctx.save();
-  ctx.translate(150, 150);
-  ctx.rotate(rotacion);
-
-  premios.forEach((premio, i) => {
-    ctx.beginPath();
-
-    // 🎨 3 COLORES INTERCALADOS
-    const colores = ["#FFD100", "#000000", "#FFFFFF"];
-    const colorSector = colores[i % colores.length];
-    ctx.fillStyle = colorSector;
-
-    // 🟢 PREMIO GANADOR
-    if (i === ganador) {
-      ctx.fillStyle = "#00E676";
+    indice++;
+    if (aciertos >= 3) {
+      mostrarResultado(true);
+    } else if (indice < preguntas.length) {
+      mostrarPregunta();
+    } else {
+      mostrarResultado(false);
     }
+  }, 1200);
+}
 
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, 140, angulo * i, angulo * (i + 1));
+function mostrarResultado(gano) {
+  document.getElementById("trivia").classList.add("hidden");
+  document.getElementById("resultado").classList.remove("hidden");
+  document.getElementById("mensajeResultado").innerText =
+    gano ? "🎉 Ganaste premio" : "😢 No ganaste";
+
+  enviarDatos(gano ? "GANA" : "PIERDE", "");
+}
+
+/* ================= RULETA ================= */
+
+function mostrarRuleta() {
+  document.getElementById("resultado").classList.add("hidden");
+  document.getElementById("ruleta").classList.remove("hidden");
+  dibujarRuleta();
+}
+
+function dibujarRuleta(resaltar = -1) {
+  ctx.clearRect(0,0,400,400);
+  const porcion = 2 * Math.PI / premios.length;
+
+  premios.forEach((p, i) => {
+    ctx.beginPath();
+    ctx.fillStyle = p.color;
+    ctx.moveTo(200,200);
+    ctx.arc(200,200,180,i*porcion,(i+1)*porcion);
     ctx.fill();
 
-    // 🔤 TEXTO
     ctx.save();
-    ctx.rotate(angulo * i + angulo / 2);
-
-    // Texto blanco si fondo es negro, si no negro
-    ctx.fillStyle = (colorSector === "#000000") ? "#FFFFFF" : "#000000";
-
-    ctx.font = "bold 18px Montserrat"; // 👈 TEXTO MÁS GRANDE
+    ctx.translate(200,200);
+    ctx.rotate(i*porcion + porcion/2);
     ctx.textAlign = "right";
-    ctx.fillText(premio.nombre, 120, 8);
-
+    ctx.font = "bold 20px Arial";
+    ctx.fillStyle = p.color === "#000000" ? "white" : "black";
+    ctx.fillText(p.nombre, 160, 5);
     ctx.restore();
   });
-
-  ctx.restore();
 }
-
-
 
 function girarRuleta() {
-  if (girando) return;
-  girando = true;
+  const index = Math.floor(Math.random() * premios.length);
+  const premio = premios[index];
 
-  const vueltas = Math.random() * 5 + 5;
-  const anguloFinal = anguloActual + vueltas * 2 * Math.PI;
-  const duracion = 4000;
-  const inicio = performance.now();
-
-  function animar(t) {
-    const progreso = Math.min((t - inicio) / duracion, 1);
-    anguloActual = anguloFinal * progreso;
-
-    dibujarRuleta(anguloActual);
-
-    if (progreso < 1) requestAnimationFrame(animar);
-    else asignarPremio();
-  }
-
-  requestAnimationFrame(animar);
-}
-
-function asignarPremio() {
-  const premios = premiosDisponibles();
-  const total = premios.length;
-  const anguloPorPremio = (2 * Math.PI) / total;
-
-  const anguloNormalizado =
-    (2 * Math.PI - (anguloActual % (2 * Math.PI))) % (2 * Math.PI);
-
-  const ganador = Math.floor(anguloNormalizado / anguloPorPremio);
-
-  // 🔴 DIBUJAR RULETA CON PREMIO RESALTADO
-  dibujarRuleta(anguloActual, ganador);
-
-  const premio = premios[ganador];
-
-  document.getElementById("premioFinal").innerText =
-    "🎉 Ganaste: " + premio.nombre;
+  document.getElementById("ruleta").classList.add("hidden");
+  document.getElementById("premioFinal").classList.remove("hidden");
+  document.getElementById("textoPremio").innerText = "🎁 Ganaste: " + premio.nombre;
 
   enviarDatos("GANA", premio.nombre);
-  document.getElementById("btnGirar").disabled = true;
-document.getElementById("btnVolver").classList.remove("hidden");
 }
 
-  function resaltarPremio(i) {
-  dibujarRuleta(anguloActual, i);
-}
-function volverInicio() {
-  location.reload(); // reinicio limpio para evento
+/* ================= SHEETS ================= */
+
+function enviarDatos(resultado, premio) {
+  fetch(SCRIPT_URL, {
+    method: "POST",
+    mode: "no-cors",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      nombre: nombreInput.value,
+      telefono: telefonoInput.value,
+      correo: correoInput.value,
+      aciertos,
+      resultado,
+      premio,
+      fecha: new Date().toISOString()
+    })
+  });
 }
 
+/* ================= RESET ================= */
 
+function reiniciar() {
+  location.reload();
+}
 </script>
+
 </body>
 </html>
