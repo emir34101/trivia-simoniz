@@ -309,11 +309,19 @@ async function mostrarResultado() {
 
 // ====== RULETA ======
 function premiosDisponibles() {
-  return inventario.filter(p => p.stock > 0);
+  return inventario.filter(p => Number(p.stock) > 0);
+
 }
 
 function dibujarRuleta(rotacion = 0, ganador = null) {
   const premios = premiosDisponibles();
+
+  if (!premios.length) {
+    document.getElementById("premioFinal").innerText =
+      "⚠️ No hay premios disponibles";
+    return;
+  }
+
   const canvas = document.getElementById("wheel");
   const ctx = canvas.getContext("2d");
 
@@ -325,31 +333,23 @@ function dibujarRuleta(rotacion = 0, ganador = null) {
   ctx.translate(150, 150);
   ctx.rotate(rotacion);
 
+  const colores = ["#FFD100", "#000000", "#FFFFFF"];
+
   premios.forEach((premio, i) => {
     ctx.beginPath();
 
-    // 🎨 3 COLORES INTERCALADOS
-    const colores = ["#FFD100", "#000000", "#FFFFFF"];
     const colorSector = colores[i % colores.length];
-    ctx.fillStyle = colorSector;
-
-    // 🟢 PREMIO GANADOR
-    if (i === ganador) {
-      ctx.fillStyle = "#00E676";
-    }
+    ctx.fillStyle = ganador === i ? "#00E676" : colorSector;
 
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, 140, angulo * i, angulo * (i + 1));
     ctx.fill();
 
-    // 🔤 TEXTO
     ctx.save();
     ctx.rotate(angulo * i + angulo / 2);
 
-    // Texto blanco si fondo es negro, si no negro
-    ctx.fillStyle = (colorSector === "#000000") ? "#FFFFFF" : "#000000";
-
-    ctx.font = "bold 18px Montserrat"; // 👈 TEXTO MÁS GRANDE
+    ctx.fillStyle = colorSector === "#000000" ? "#FFFFFF" : "#000000";
+    ctx.font = "bold 18px Montserrat";
     ctx.textAlign = "right";
     ctx.fillText(premio.nombre, 120, 8);
 
