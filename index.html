@@ -280,19 +280,19 @@ function responder(i) {
 // ====== RESULTADO ======
 async function mostrarResultado() {
   document.getElementById('trivia').classList.add('hidden');
-  document.getElementById('resultado').classList.remove('hidden');
 
   const gana = aciertos >= 3;
 
   if (gana) {
-    document.getElementById('tituloResultado').innerText = '¡Ganaste premio!';
-    document.getElementById('mensajeResultado').innerText = 'Cargando ruleta...';
+    // 👇 MUESTRA RULETA (NO resultado)
+    document.getElementById('ruleta').classList.remove('hidden');
 
     await cargarInventario();
-    document.getElementById('resultado').classList.add('hidden');
-    document.getElementById('ruleta').classList.remove('hidden');
     dibujarRuleta();
+
   } else {
+    // 👇 SOLO SI PIERDE
+    document.getElementById('resultado').classList.remove('hidden');
     document.getElementById('tituloResultado').innerText = 'Gracias por participar';
     document.getElementById('mensajeResultado').innerText =
       'Sigue cuidando tu vehículo con Simoniz.';
