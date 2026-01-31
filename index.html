@@ -159,6 +159,7 @@ button:disabled {
 
 
 <script>
+console.log("JS cargado");
 const preguntas = {
   "SIMONIZ & MARCA": [
     { pregunta: "¿Qué representa Simoniz como marca?", opciones: ["Solo limpieza del vehículo", "Cuidado, protección y orgullo por lo que te mueve", "Productos rápidos y económicos"], correcta: 1 },
@@ -186,35 +187,41 @@ const preguntas = {
     { pregunta: "¿Por qué Simoniz encaja bien en un entorno lifestyle como el golf?", opciones: ["Por el precio", "Por la estética, el cuidado y el orgullo personal", "Por moda"], correcta: 1 }
   ]
 };
-
 let categorias = Object.keys(preguntas);
 let index = 0;
 let aciertos = 0;
 let anguloActual = 0;
 let girando = false;
+let inventario = [];
+
+// ====== SELECCIÓN ALEATORIA (CORREGIDO) ======
 let seleccionadas = categorias.map(cat => {
   const banco = preguntas[cat];
   return banco[Math.floor(Math.random() * banco.length)];
-let inventario = [];
+});
 
+// ====== INVENTARIO ======
 async function cargarInventario() {
   const res = await fetch("https://script.google.com/macros/s/AKfycbwsP_VVG4ayxnttv0Ger5ye-c_GIyYk0gbQi274oU9fuEL67_pkAuG2B_CMkyKfjA-G/exec");
   inventario = await res.json();
 }
-});
 
+// ====== INICIAR ======
 function iniciarTrivia() {
+  console.log("Trivia iniciada");
   document.getElementById('registro').classList.add('hidden');
   document.getElementById('trivia').classList.remove('hidden');
   mostrarPregunta();
 }
 
-
+// ====== MOSTRAR PREGUNTA ======
 function mostrarPregunta() {
   const cat = categorias[index];
   const q = seleccionadas[index];
+
   document.getElementById('categoria').innerText = cat;
   document.getElementById('pregunta').innerText = q.pregunta;
+
   const cont = document.getElementById('opciones');
   cont.innerHTML = '';
 
@@ -227,11 +234,12 @@ function mostrarPregunta() {
   });
 }
 
+// ====== RESPUESTA ======
 function responder(i) {
-  const opcionesDivs = document.querySelectorAll('.option');
+  const opciones = document.querySelectorAll('.option');
   const correcta = seleccionadas[index].correcta;
 
-  opcionesDivs.forEach((div, idx) => {
+  opciones.forEach((div, idx) => {
     div.classList.add('disabled');
     if (idx === correcta) div.classList.add('correct');
     if (idx === i && i !== correcta) div.classList.add('incorrect');
@@ -246,19 +254,21 @@ function responder(i) {
   }, 1600);
 }
 
+// ====== RESULTADO ======
 async function mostrarResultado() {
   document.getElementById('trivia').classList.add('hidden');
   document.getElementById('resultado').classList.remove('hidden');
 
-  const gana = aciertos >= 3; // o el número que definas
+  const gana = aciertos >= 3;
 
   if (gana) {
-    await cargarInventario();   // 👈 AQUÍ
-    dibujarRuleta();            // 👈 AQUÍ
-
     document.getElementById('tituloResultado').innerText = '¡Ganaste premio!';
-    document.getElementById('mensajeResultado').innerText =
-      'Gira la ruleta y descubre tu premio Simoniz.';
+    document.getElementById('mensajeResultado').innerText = 'Cargando ruleta...';
+
+    await cargarInventario();
+    document.getElementById('resultado').classList.add('hidden');
+    document.getElementById('ruleta').classList.remove('hidden');
+    dibujarRuleta();
   } else {
     document.getElementById('tituloResultado').innerText = 'Gracias por participar';
     document.getElementById('mensajeResultado').innerText =
@@ -266,22 +276,9 @@ async function mostrarResultado() {
   }
 }
 
-function asignarPremio(index) {
-  const premio = inventario[index];
-
-  fetch("TU_URL_DE_APPS_SCRIPT", {
-    method: "POST",
-    body: JSON.stringify({
-      nombre: nombre,
-      telefono: telefono,
-      correo: correo,
-      aciertos: aciertos,
-      premio: premio.nombre
-    })
-  });
-
-  document.getElementById("premioFinal").innerText =
-    "🎉 Ganaste: " + premio.nombre;
+// ====== RULETA ======
+function premiosDisponibles() {
+  return inventario.filter(p => p.stock > 0);
 }
 
 function dibujarRuleta(rotacion = 0) {
@@ -289,6 +286,7 @@ function dibujarRuleta(rotacion = 0) {
   const canvas = document.getElementById("wheel");
   const ctx = canvas.getContext("2d");
 
+  ctx.clearRect(0, 0, 300, 300);
   const total = premios.length;
   const angulo = (2 * Math.PI) / total;
 
@@ -306,8 +304,8 @@ function dibujarRuleta(rotacion = 0) {
     ctx.save();
     ctx.rotate(angulo * i + angulo / 2);
     ctx.fillStyle = "#fff";
-    ctx.font = "14px Montserrat";
-    ctx.fillText(premio.nombre, 40, 5);
+    ctx.font = "13px Montserrat";
+    ctx.fillText(premio.nombre, 30, 5);
     ctx.restore();
   });
 
@@ -315,102 +313,36 @@ function dibujarRuleta(rotacion = 0) {
 }
 
 function girarRuleta() {
-  if (girando) return; // ❌ evita doble giro
+  if (girando) return;
   girando = true;
 
-  const premios = premiosDisponibles();
-  const canvas = document.getElementById("wheel");
-  const ctx = canvas.getContext("2d");
-
-  const vueltas = Math.random() * 5 + 5; // 5–10 vueltas
+  const vueltas = Math.random() * 5 + 5;
   const anguloFinal = anguloActual + vueltas * 2 * Math.PI;
-  const duracion = 4000; // ms
-
+  const duracion = 4000;
   const inicio = performance.now();
 
-  function animar(tiempo) {
-    const progreso = Math.min((tiempo - inicio) / duracion, 1);
-    const easing = 1 - Math.pow(1 - progreso, 3); // desaceleración suave
+  function animar(t) {
+    const progreso = Math.min((t - inicio) / duracion, 1);
+    anguloActual = anguloFinal * progreso;
 
-    anguloActual = anguloActual + (anguloFinal - anguloActual) * easing;
-
-    ctx.clearRect(0, 0, 300, 300);
     dibujarRuleta(anguloActual);
 
-    if (progreso < 1) {
-      requestAnimationFrame(animar);
-    } else {
-      asignarPremio();
-    }
+    if (progreso < 1) requestAnimationFrame(animar);
+    else asignarPremio();
   }
 
   requestAnimationFrame(animar);
 }
+
 function asignarPremio() {
   const premios = premiosDisponibles();
-  const total = premios.length;
-  const anguloPorPremio = (2 * Math.PI) / total;
-
-  const anguloNormalizado = (2 * Math.PI - (anguloActual % (2 * Math.PI)));
-  const index = Math.floor(anguloNormalizado / anguloPorPremio) % total;
-
+  const anguloPor = (2 * Math.PI) / premios.length;
+  const index = Math.floor(((2 * Math.PI - anguloActual) % (2 * Math.PI)) / anguloPor);
   const premio = premios[index];
-  premio.cantidad--;
 
   document.getElementById("premioFinal").innerText =
     "🎉 Ganaste: " + premio.nombre;
-
-  enviarDatos("GANA", premio.nombre);
 }
-
-function enviarDatos(resultado, premio = "") {
-  const data = {
-    nombre: nombre.value,
-    telefono: telefono.value,
-    correo: correo.value,
-    aciertos,
-    resultado,
-    premio
-  };
-
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-}
-
-// === ENVÍO DE DATOS A GOOGLE SHEETS ===
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmpWSyy-M_zTNWHGvHnYAHO7TXR_VdTWCPgWijauk7F1e1HLVGs6GpbTPhSXpJeiJQ/exec";
-
-function enviarDatos(resultado) {
-  const data = {
-    nombre: document.getElementById('nombre').value,
-    telefono: document.getElementById('telefono').value,
-    correo: document.getElementById('correo').value,
-    aciertos: aciertos,
-    resultado: resultado
-  };
-
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-}
-function premiosDisponibles() {
-  return inventario.filter(p => p.cantidad > 0);
-
-// Hook al resultado final
-const _mostrarResultado = mostrarResultado;
-mostrarResultado = function() {
-  const gana = aciertos >= 4;
-  enviarDatos(gana ? 'GANA' : 'NO GANA');
-  _mostrarResultado();
-}
-  document.querySelector("#ruleta button").disabled = true;
 
 </script>
 </body>
