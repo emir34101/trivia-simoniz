@@ -232,7 +232,7 @@ let seleccionadas = categorias.map(cat => {
 
 // ====== INVENTARIO ======
 async function cargarInventario() {
-  const res = await fetch("https://script.google.com/macros/s/AKfycbwsP_VVG4ayxnttv0Ger5ye-c_GIyYk0gbQi274oU9fuEL67_pkAuG2B_CMkyKfjA-G/exec");
+  const res = await fetch("https://script.google.com/macros/s/AKfycbyNRGfXB8B_gNaYVkpJoy6Ql20yXu21qrrafo7Fe1vjzWSXVY0NgEpG5IdG-WWC55EE/exec");
   inventario = await res.json();
 }
 
@@ -414,7 +414,6 @@ function volverInicio() {
 function enviarDatos(resultado, premio = "") {
   fetch(SCRIPT_URL, {
     method: "POST",
-    mode: "no-cors",
     headers: {
       "Content-Type": "application/json"
     },
@@ -427,8 +426,11 @@ function enviarDatos(resultado, premio = "") {
       premio: premio,
       fecha: new Date().toISOString()
     })
-  });
+  })
+  .then(() => console.log("Datos enviados a Sheets"))
+  .catch(err => console.error("Error enviando datos", err));
 }
+
 
 
 </script>
