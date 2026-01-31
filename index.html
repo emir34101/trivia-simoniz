@@ -6,10 +6,10 @@
   <title>Trivia Simoniz</title>
   <style>
     :root {
-      --simoniz-red: #E10600;
-      --simoniz-black: #000000;
-      --simoniz-gray: #F2F2F2;
-      --simoniz-white: #FFFFFF;
+      --simoniz-yellow: #FFD100;
+  --simoniz-black: #000000;
+  --simoniz-gray: #F2F2F2;
+  --simoniz-white: #FFFFFF;
     }
 
     body {
@@ -34,10 +34,10 @@
     }
 
     h1 {
-      text-align: center;
-      color: var(--simoniz-red);
-      margin-bottom: 10px;
-    }
+  text-align: center;
+  color: var(--simoniz-yellow);
+  margin-bottom: 10px;
+}
 
     p {
       text-align: center;
@@ -56,9 +56,10 @@
     button {
       width: 100%;
       padding: 15px;
-      background: var(--simoniz-red);
-      color: white;
+      background: var(--simoniz-yellow);
+      color: #000;
       font-size: 18px;
+      font-weight: 700;
       border: none;
       border-radius: 12px;
       cursor: pointer;
@@ -68,7 +69,7 @@
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(225,6,0,.4);
+      box-shadow: 0 10px 20px rgba(255,209,0,.5);
     }
 
     .option {
@@ -101,6 +102,15 @@
     }
 
     .hidden { display: none; }
+    .logo {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.logo img {
+  max-width: 160px;
+  width: 100%;
+}
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -109,6 +119,9 @@
   </style>
 </head>
 <body>
+  <div class="logo">
+  <img src="https://bogota.gov.co/sites/default/files/styles/1050px/public/2020-05/simoniz-dos.png" alt="Simoniz Logo">
+</div>
 
   <div class="card" id="registro">
     <h1>Trivia Simoniz</h1>
