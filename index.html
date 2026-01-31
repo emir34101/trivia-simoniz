@@ -78,7 +78,7 @@
       border-radius: 12px;
       margin: 10px 0;
       cursor: pointer;
-      transition: background .2s ease, transform .1s ease;
+      transition: background .4s ease, transform .2s ease;
     }
 
     .option.correct {
@@ -87,8 +87,9 @@
     }
 
     .option.incorrect {
-      background: #8b1a1a;
-      box-shadow: 0 0 15px rgba(255,0,0,.4);
+      background: #C62828; /* Rojo profundo */
+  box-shadow: 0 0 12px rgba(198,40,40,.6);
+  color: #fff;
     }
 
     .option.disabled {
@@ -125,7 +126,7 @@
       <div class="logo">
   <img src="https://bogota.gov.co/sites/default/files/styles/1050px/public/2020-05/simoniz-dos.png" alt="Simoniz Logo">
 </div>
-    <h1>Trivia Simoniz</h1>
+    <h1>Trivia</h1>
     <p>Demuestra cuánto sabes del cuidado automotriz</p>
     <input id="nombre" placeholder="Nombre completo" />
     <input id="telefono" placeholder="Teléfono" />
@@ -221,16 +222,16 @@ function responder(i) {
     index++;
     if (index < categorias.length) mostrarPregunta();
     else mostrarResultado();
-  }, 1200);
+  }, 1600);
 }
 
 function mostrarResultado() {
   document.getElementById('trivia').classList.add('hidden');
   document.getElementById('resultado').classList.remove('hidden');
 
-  const gana = aciertos >= 4;
-  document.getElementById('tituloResultado').innerText = gana ? '¡Ganaste!' : 'Gracias por participar';
-  document.getElementById('mensajeResultado').innerText = gana ? 'Presenta este mensaje y reclama tu premio Simoniz.' : 'Sigue cuidando tu vehículo con Simoniz.';
+  const gana = aciertos >= 3;
+  document.getElementById('tituloResultado').innerText = gana ? '¡Ganaste!' : ' No Ganaste Gracias por participar';
+  document.getElementById('mensajeResultado').innerText = gana ? 'Reclama tu premio Simoniz.' : 'Sigue cuidando tu vehículo con Simoniz.';
 }
 // === ENVÍO DE DATOS A GOOGLE SHEETS ===
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmpWSyy-M_zTNWHGvHnYAHO7TXR_VdTWCPgWijauk7F1e1HLVGs6GpbTPhSXpJeiJQ/exec";
