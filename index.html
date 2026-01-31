@@ -186,9 +186,7 @@ const nombreInput = document.getElementById("nombre");
 const telefonoInput = document.getElementById("telefono");
 const correoInput = document.getElementById("correo");
 // === GOOGLE APPS SCRIPT ===
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyWb1iqA-ZfSIMCh0d-eC41_7kVGpiAMZ8SQflsga1q7OgyGIOUMd_IalCJmYHugNtl/exec";
-
-
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyErxdCWmcGaIMmUk6p-MrfHPljEKWksUWZiI_LNO8nvQz0UPxmOV0nKQaVy-RlIIfe/exec";
 const preguntas = {
   "SIMONIZ & MARCA": [
     { pregunta: "¿Qué representa Simoniz como marca?", opciones: ["Solo limpieza del vehículo", "Cuidado, protección y orgullo por lo que te mueve", "Productos rápidos y económicos"], correcta: 1 },
@@ -232,10 +230,11 @@ let seleccionadas = categorias.map(cat => {
 
 // ====== INVENTARIO ======
 async function cargarInventario() {
-  const res = await fetch("https://script.google.com/macros/s/AKfycbyNRGfXB8B_gNaYVkpJoy6Ql20yXu21qrrafo7Fe1vjzWSXVY0NgEpG5IdG-WWC55EE/exec");
+  const res = await fetch(SCRIPT_URL);
   inventario = await res.json();
   console.log("Inventario cargado:", inventario);
 }
+
 
 // ====== INICIAR ======
 function iniciarTrivia() {
