@@ -234,6 +234,7 @@ let seleccionadas = categorias.map(cat => {
 async function cargarInventario() {
   const res = await fetch("https://script.google.com/macros/s/AKfycbyNRGfXB8B_gNaYVkpJoy6Ql20yXu21qrrafo7Fe1vjzWSXVY0NgEpG5IdG-WWC55EE/exec");
   inventario = await res.json();
+  console.log("Inventario cargado:", inventario);
 }
 
 // ====== INICIAR ======
