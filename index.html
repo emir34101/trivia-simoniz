@@ -394,12 +394,16 @@ function asignarPremio() {
     "🎉 Ganaste: " + premio.nombre;
 
   enviarDatos("GANA", premio.nombre);
+  document.getElementById("btnGirar").disabled = true;
+document.getElementById("btnVolver").classList.remove("hidden");
 }
 
   function resaltarPremio(i) {
   dibujarRuleta(anguloActual, i);
 }
-
+function volverInicio() {
+  location.reload(); // reinicio limpio para evento
+}
 
 
 </script>
