@@ -116,6 +116,22 @@ button:disabled {
   opacity: .5;
   cursor: not-allowed;
 }
+    .puntero {
+  position: absolute;
+  top: -5px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 0;
+  border-left: 14px solid transparent;
+  border-right: 14px solid transparent;
+  border-bottom: 24px solid red;
+  z-index: 10;
+}
+#ruleta {
+  position: relative;
+}
+
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -151,6 +167,8 @@ button:disabled {
   </div>
   <div class="card hidden" id="ruleta">
   <h1>🎡 Gira la ruleta</h1>
+    <div class="puntero"></div>
+<canvas id="wheel" width="300" height="300"></canvas>
   <canvas id="wheel" width="300" height="300"></canvas>
   <button onclick="girarRuleta()">GIRAR</button>
   <p id="premioFinal"></p>
@@ -281,7 +299,7 @@ function premiosDisponibles() {
   return inventario.filter(p => p.stock > 0);
 }
 
-function dibujarRuleta(rotacion = 0) {
+function dibujarRuleta(rotacion = 0, ganador = null) {
   const premios = premiosDisponibles();
   const canvas = document.getElementById("wheel");
   const ctx = canvas.getContext("2d");
@@ -296,7 +314,9 @@ function dibujarRuleta(rotacion = 0) {
 
   premios.forEach((premio, i) => {
     ctx.beginPath();
-    ctx.fillStyle = i % 2 === 0 ? "#FFD100" : "#000";
+    ctx.fillStyle =
+      i === ganador ? "#00E676" : i % 2 === 0 ? "#FFD100" : "#000";
+
     ctx.moveTo(0, 0);
     ctx.arc(0, 0, 140, angulo * i, angulo * (i + 1));
     ctx.fill();
@@ -304,13 +324,14 @@ function dibujarRuleta(rotacion = 0) {
     ctx.save();
     ctx.rotate(angulo * i + angulo / 2);
     ctx.fillStyle = "#fff";
-    ctx.font = "13px Montserrat";
+    ctx.font = "bold 13px Montserrat";
     ctx.fillText(premio.nombre, 30, 5);
     ctx.restore();
   });
 
   ctx.restore();
 }
+
 
 function girarRuleta() {
   if (girando) return;
@@ -337,12 +358,24 @@ function girarRuleta() {
 function asignarPremio() {
   const premios = premiosDisponibles();
   const anguloPor = (2 * Math.PI) / premios.length;
-  const index = Math.floor(((2 * Math.PI - anguloActual) % (2 * Math.PI)) / anguloPor);
+
+  // El puntero está arriba (-90 grados)
+  const anguloNormalizado =
+    (2 * Math.PI + (Math.PI / 2) - (anguloActual % (2 * Math.PI))) % (2 * Math.PI);
+
+  const index = Math.floor(anguloNormalizado / anguloPor);
   const premio = premios[index];
 
   document.getElementById("premioFinal").innerText =
-    "🎉 Ganaste: " + premio.nombre;
+    "🎉 ¡Ganaste: " + premio.nombre + "!";
+    
+  resaltarPremio(index);
 }
+  function resaltarPremio(i) {
+  dibujarRuleta(anguloActual, i);
+}
+
+
 
 </script>
 </body>
