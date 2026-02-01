@@ -6,11 +6,13 @@
   <title>Trivia Simoniz</title>
   <style>
     :root {
-      --simoniz-red: #E10600;
-      --simoniz-black: #000000;
-      --simoniz-gray: #F2F2F2;
-      --simoniz-white: #FFFFFF;
-    }
+  --simoniz-yellow: #FFD100;
+  --simoniz-black: #000000;
+  --simoniz-gray: #F2F2F2;
+  --simoniz-white: #FFFFFF;
+}
+
+
 
     body {
       margin: 0;
@@ -34,10 +36,10 @@
     }
 
     h1 {
-      text-align: center;
-      color: var(--simoniz-red);
-      margin-bottom: 10px;
-    }
+  text-align: center;
+  color: var(--simoniz-yellow);
+  margin-bottom: 10px;
+}
 
     p {
       text-align: center;
@@ -56,8 +58,9 @@
     button {
       width: 100%;
       padding: 15px;
-      background: var(--simoniz-red);
-      color: white;
+       background: var(--simoniz-yellow);
+  color: #000;
+  font-weight: 700;
       font-size: 18px;
       border: none;
       border-radius: 12px;
@@ -68,8 +71,13 @@
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(225,6,0,.4);
+      box-shadow: 0 10px 20px rgba(255,209,0,.5);
     }
+    button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
 
     .option {
       background: #1f1f1f;
@@ -77,7 +85,7 @@
       border-radius: 12px;
       margin: 10px 0;
       cursor: pointer;
-      transition: background .2s ease, transform .1s ease;
+      transition: background .4s ease, transform .3s ease;
     }
 
     .option.correct {
@@ -86,9 +94,11 @@
     }
 
     .option.incorrect {
-      background: #8b1a1a;
-      box-shadow: 0 0 15px rgba(255,0,0,.4);
-    }
+  background: #C62828; /* Rojo profundo */
+  box-shadow: 0 0 12px rgba(198,40,40,.6);
+  color: #fff;
+}
+
 
     .option.disabled {
       pointer-events: none;
@@ -101,6 +111,15 @@
     }
 
     .hidden { display: none; }
+    .logo {
+    text-align: center;
+    margin-bottom: 15px;
+  }
+  
+  .logo img {
+    max-width: 160px;
+    width: 100%;
+  }
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -111,6 +130,9 @@
 <body>
 
   <div class="card" id="registro">
+    <div class="logo">
+  <img src="https://bogota.gov.co/sites/default/files/styles/1050px/public/2020-05/simoniz-dos.png">
+</div>
     <h1>Trivia Simoniz</h1>
     <p>Demuestra cuánto sabes del cuidado automotriz</p>
     <input id="nombre" placeholder="Nombre completo" />
@@ -128,8 +150,15 @@
   <div class="card hidden" id="resultado">
     <h1 id="tituloResultado"></h1>
     <p id="mensajeResultado"></p>
-    <button onclick="location.reload()">Nueva participación</button>
+    
   </div>
+<div class="card hidden" id="ruleta">
+  <h1>🎡 Gira la ruleta</h1>
+  <canvas id="wheel" width="300" height="300"></canvas>
+  <button onclick="girarRuleta()">GIRAR</button>
+  <p id="premioFinal"></p>
+  <button onclick="location.reload()">Nueva participación</button>
+</div>
 
 <script>
 const preguntas = {
@@ -161,6 +190,14 @@ const preguntas = {
 };
 
 let categorias = Object.keys(preguntas);
+let inventario = [
+  { nombre: "Cera Simoniz", cantidad: 10 },
+  { nombre: "Silicona UV3", cantidad: 8 },
+  { nombre: "Ambientador", cantidad: 15 },
+  { nombre: "Descuento 10%", cantidad: 20 }
+];
+  let anguloActual = 0;
+let girando = false;
 let index = 0;
 let aciertos = 0;
 let seleccionadas = categorias.map(cat => {
@@ -172,6 +209,9 @@ function iniciarTrivia() {
   document.getElementById('registro').classList.add('hidden');
   document.getElementById('trivia').classList.remove('hidden');
   mostrarPregunta();
+}
+  function premiosDisponibles() {
+  return inventario.filter(p => p.cantidad > 0);
 }
 
 function mostrarPregunta() {
@@ -207,19 +247,24 @@ function responder(i) {
     index++;
     if (index < categorias.length) mostrarPregunta();
     else mostrarResultado();
-  }, 1200);
+  }, 1500);
 }
 
 function mostrarResultado() {
   document.getElementById('trivia').classList.add('hidden');
-  document.getElementById('resultado').classList.remove('hidden');
 
-  const gana = aciertos >= 4;
-  document.getElementById('tituloResultado').innerText = gana ? '¡Ganaste!' : 'Gracias por participar';
-  document.getElementById('mensajeResultado').innerText = gana ? 'Presenta este mensaje y reclama tu premio Simoniz.' : 'Sigue cuidando tu vehículo con Simoniz.';
+  if (aciertos >= 3) {
+    document.getElementById('ruleta').classList.remove('hidden');
+    dibujarRuleta();
+  } else {
+    document.getElementById('resultado').classList.remove('hidden');
+    document.getElementById('tituloResultado').innerText = "Gracias por participar";
+    document.getElementById('mensajeResultado').innerText = "Sigue cuidando tu vehículo con Simoniz.";
+  }
 }
+
 // === ENVÍO DE DATOS A GOOGLE SHEETS ===
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKiHgkUNqQrwyeWKjxwBBwryrhTMiPxkvrYSDbU4EVGYlAk9AwEx0kxCkJWpdu6nZ1/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmpWSyy-M_zTNWHGvHnYAHO7TXR_VdTWCPgWijauk7F1e1HLVGs6GpbTPhSXpJeiJQ/exec";
 
 function enviarDatos(resultado) {
   const data = {
@@ -241,10 +286,121 @@ function enviarDatos(resultado) {
 // Hook al resultado final
 const _mostrarResultado = mostrarResultado;
 mostrarResultado = function() {
-  const gana = aciertos >= 4;
+  const gana = aciertos >= 3;
   enviarDatos(gana ? 'GANA' : 'NO GANA');
   _mostrarResultado();
 }
+function dibujarRuleta(rotacion = 0) {
+  const premios = premiosDisponibles();
+  const canvas = document.getElementById("wheel");
+  const ctx = canvas.getContext("2d");
+
+  const total = premios.length;
+  const angulo = (2 * Math.PI) / total;
+
+  ctx.save();
+  ctx.translate(150, 150);
+  ctx.rotate(rotacion);
+
+  premios.forEach((premio, i) => {
+    ctx.beginPath();
+    ctx.fillStyle = i % 2 === 0 ? "#FFD100" : "#000";
+    ctx.moveTo(0, 0);
+    ctx.arc(0, 0, 140, angulo * i, angulo * (i + 1));
+    ctx.fill();
+
+    ctx.save();
+    ctx.rotate(angulo * i + angulo / 2);
+    ctx.fillStyle = "#fff";
+    ctx.font = "14px Montserrat";
+    ctx.fillText(premio.nombre, 40, 5);
+    ctx.restore();
+  });
+
+  ctx.restore();
+}
+
+function girarRuleta() {
+  const premios = premiosDisponibles();
+  const ganador = Math.floor(Math.random() * premios.length);
+  const premio = premios[ganador];
+
+  premio.cantidad--; // 🔻 DESCUENTA INVENTARIO
+
+  document.getElementById("premioFinal").innerText =
+    "🎉 Ganaste: " + premio.nombre;
+
+  enviarDatos("GANA", premio.nombre);
+}
+function enviarDatos(resultado, premio = "") {
+  const data = {
+    nombre: nombre.value,
+    telefono: telefono.value,
+    correo: correo.value,
+    aciertos,
+    resultado,
+    premio
+  };
+
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  });
+}
+  function girarRuleta() {
+  if (girando) return; // ❌ evita doble giro
+  girando = true;
+
+  const premios = premiosDisponibles();
+  const canvas = document.getElementById("wheel");
+  const ctx = canvas.getContext("2d");
+
+  const vueltas = Math.random() * 5 + 5; // 5–10 vueltas
+  const anguloFinal = anguloActual + vueltas * 2 * Math.PI;
+  const duracion = 4000; // ms
+
+  const inicio = performance.now();
+
+  function animar(tiempo) {
+    const progreso = Math.min((tiempo - inicio) / duracion, 1);
+    const easing = 1 - Math.pow(1 - progreso, 3); // desaceleración suave
+
+    anguloActual = anguloActual + (anguloFinal - anguloActual) * easing;
+
+    ctx.clearRect(0, 0, 300, 300);
+    dibujarRuleta(anguloActual);
+
+    if (progreso < 1) {
+      requestAnimationFrame(animar);
+    } else {
+      asignarPremio();
+    }
+  }
+
+  requestAnimationFrame(animar);
+}
+  function asignarPremio() {
+  const premios = premiosDisponibles();
+  const total = premios.length;
+  const anguloPorPremio = (2 * Math.PI) / total;
+
+  const anguloNormalizado = (2 * Math.PI - (anguloActual % (2 * Math.PI)));
+  const index = Math.floor(anguloNormalizado / anguloPorPremio) % total;
+
+  const premio = premios[index];
+  premio.cantidad--;
+
+  document.getElementById("premioFinal").innerText =
+    "🎉 Ganaste: " + premio.nombre;
+
+  enviarDatos("GANA", premio.nombre);
+}
+document.querySelector("#ruleta button").disabled = true;
+
+
+  
 </script>
 </body>
 </html>
