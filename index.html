@@ -420,14 +420,15 @@ function enviarDatos(resultado, premio = "") {
   formData.append("resultado", resultado);
   formData.append("premio", premio);
 
-  fetch("https://script.google.com/macros/s/AKfycbzFulhboMNintLHK0IVZueWUDPkbMiQDeR7kn9mlOC6EV6Re9buHE901HIUWUPXJinp/exec", {
+  fetch("https://script.google.com/macros/s/AKfycbyt8dNf71fAlWLUueTOu9GbNudaYkpfGbVpwhjnC3MJZcQvDuoPFf48P3uezEBADifZ/exec", {
     method: "POST",
     body: formData
   })
   .then(r => r.text())
-  .then(txt => console.log("Respuesta Sheets:", txt))
-  .catch(err => console.error("Error:", err));
+  .then(txt => console.log("Sheets:", txt))
+  .catch(err => console.error(err));
 }
+
 
 
 
