@@ -223,10 +223,20 @@ let seleccionadas = categorias.map(cat => {
 });
 
 function iniciarTrivia() {
-  document.getElementById('registro').classList.add('hidden');
-  document.getElementById('trivia').classList.remove('hidden');
+  if (
+    !nombre.value.trim() ||
+    !telefono.value.trim() ||
+    !correo.value.trim()
+  ) {
+    alert("Por favor completa todos los datos");
+    return;
+  }
+
+  document.getElementById("registro").classList.add("hidden");
+  document.getElementById("trivia").classList.remove("hidden");
   mostrarPregunta();
 }
+
   function premiosDisponibles() {
   return inventario.filter(p => p.cantidad > 0);
 }
@@ -293,33 +303,7 @@ async function mostrarResultado() {
 // === ENVÍO DE DATOS A GOOGLE SHEETS ===
 const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxmpWSyy-M_zTNWHGvHnYAHO7TXR_VdTWCPgWijauk7F1e1HLVGs6GpbTPhSXpJeiJQ/exec";
 
-function enviarDatos(resultado) {
-  const data = {
-    nombre: document.getElementById('nombre').value,
-    telefono: document.getElementById('telefono').value,
-    correo: document.getElementById('correo').value,
-    aciertos: aciertos,
-    resultado: resultado
-  };
 
-  fetch(SCRIPT_URL, {
-    method: 'POST',
-    mode: 'no-cors',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify(data)
-  });
-}
-
-// Hook al resultado final
-const _mostrarResultado = mostrarResultado;
-mostrarResultado = function() {
-  const gana = aciertos >= 3;
-  enviarDatos(gana ? 'GANA' : 'NO GANA');
-  _mostrarResultado();
-  
-}
- // verde ganador
-}
 
 function enviarDatos(resultado, premio = "") {
   const data = {
