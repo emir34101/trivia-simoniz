@@ -186,7 +186,7 @@ const nombreInput = document.getElementById("nombre");
 const telefonoInput = document.getElementById("telefono");
 const correoInput = document.getElementById("correo");
 // === GOOGLE APPS SCRIPT ===
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyt8dNf71fAlWLUueTOu9GbNudaYkpfGbVpwhjnC3MJZcQvDuoPFf48P3uezEBADifZ/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzFulhboMNintLHK0IVZueWUDPkbMiQDeR7kn9mlOC6EV6Re9buHE901HIUWUPXJinp/exec";
 const preguntas = {
   "SIMONIZ & MARCA": [
     { pregunta: "¿Qué representa Simoniz como marca?", opciones: ["Solo limpieza del vehículo", "Cuidado, protección y orgullo por lo que te mueve", "Productos rápidos y económicos"], correcta: 1 },
@@ -428,6 +428,7 @@ function enviarDatos(resultado, premio = "") {
   .then(txt => console.log("Respuesta Sheets:", txt))
   .catch(err => console.error("Error:", err));
 }
+
 
 
 
