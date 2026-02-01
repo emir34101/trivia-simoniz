@@ -121,6 +121,11 @@
     max-width: 160px;
     width: 100%;
   }
+    #wheel {
+  display: block;
+  margin: 20px auto;
+}
+
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -268,14 +273,15 @@ async function mostrarResultado() {
   const gana = aciertos >= 3;
 
   if (gana) {
-    // 👇 MUESTRA RULETA (NO resultado)
-    document.getElementById('ruleta').classList.remove('hidden');
+    const ruleta = document.getElementById('ruleta');
+    ruleta.classList.remove('hidden');
 
-    await cargarInventario();
-    dibujarRuleta();
+    // ⏱️ esperar a que el DOM pinte la card
+    requestAnimationFrame(() => {
+      dibujarRuleta(0);
+    });
 
   } else {
-    // 👇 SOLO SI PIERDE
     document.getElementById('resultado').classList.remove('hidden');
     document.getElementById('tituloResultado').innerText = 'Gracias por participar';
     document.getElementById('mensajeResultado').innerText =
@@ -310,9 +316,9 @@ mostrarResultado = function() {
   const gana = aciertos >= 3;
   enviarDatos(gana ? 'GANA' : 'NO GANA');
   _mostrarResultado();
+  
 }
-if (i === ganador) {
-  ctx.fillStyle = "#00E676"; // verde ganador
+ // verde ganador
 }
 
 function enviarDatos(resultado, premio = "") {
@@ -435,17 +441,7 @@ document.getElementById("btnVolver").classList.remove("hidden");
 
 }
 
-    function volverInicio() {
-  document.getElementById("ruleta").classList.add("hidden");
-  document.getElementById("resultado").classList.add("hidden");
-  document.getElementById("registro").classList.remove("hidden");
-
-  // Reset estado
-  index = 0;
-  aciertos = 0;
-  anguloActual = 0;
-  girando = false;
-}
+    
   function volverInicio() {
   location.reload(); // reinicio limpio para evento
 }
