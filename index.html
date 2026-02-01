@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
@@ -5,10 +6,10 @@
   <title>Trivia Simoniz</title>
   <style>
     :root {
-      --simoniz-yellow: #FFD100;
-  --simoniz-black: #000000;
-  --simoniz-gray: #F2F2F2;
-  --simoniz-white: #FFFFFF;
+      --simoniz-red: #E10600;
+      --simoniz-black: #000000;
+      --simoniz-gray: #F2F2F2;
+      --simoniz-white: #FFFFFF;
     }
 
     body {
@@ -33,10 +34,10 @@
     }
 
     h1 {
-  text-align: center;
-  color: var(--simoniz-yellow);
-  margin-bottom: 10px;
-}
+      text-align: center;
+      color: var(--simoniz-red);
+      margin-bottom: 10px;
+    }
 
     p {
       text-align: center;
@@ -55,10 +56,9 @@
     button {
       width: 100%;
       padding: 15px;
-      background: var(--simoniz-yellow);
-      color: #000;
+      background: var(--simoniz-red);
+      color: white;
       font-size: 18px;
-      font-weight: 700;
       border: none;
       border-radius: 12px;
       cursor: pointer;
@@ -68,7 +68,7 @@
 
     button:hover {
       transform: translateY(-2px);
-      box-shadow: 0 10px 20px rgba(255,209,0,.5);
+      box-shadow: 0 10px 20px rgba(225,6,0,.4);
     }
 
     .option {
@@ -77,7 +77,7 @@
       border-radius: 12px;
       margin: 10px 0;
       cursor: pointer;
-      transition: background .4s ease, transform .2s ease;
+      transition: background .2s ease, transform .1s ease;
     }
 
     .option.correct {
@@ -86,9 +86,8 @@
     }
 
     .option.incorrect {
-      background: #C62828; /* Rojo profundo */
-  box-shadow: 0 0 12px rgba(198,40,40,.6);
-  color: #fff;
+      background: #8b1a1a;
+      box-shadow: 0 0 15px rgba(255,0,0,.4);
     }
 
     .option.disabled {
@@ -102,35 +101,6 @@
     }
 
     .hidden { display: none; }
-    .logo {
-  text-align: center;
-  margin-bottom: 15px;
-}
-
-.logo img {
-  max-width: 160px;
-  width: 100%;
-}
-button:disabled {
-  opacity: .5;
-  cursor: not-allowed;
-}
-    .puntero {
-  position: absolute;
-  top: -5px;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 0;
-  height: 0;
-  border-left: 14px solid transparent;
-  border-right: 14px solid transparent;
-  border-bottom: 24px solid red;
-  z-index: 10;
-}
-#ruleta {
-  position: relative;
-}
-
 
     @keyframes fadeIn {
       from { opacity: 0; transform: translateY(20px); }
@@ -140,12 +110,8 @@ button:disabled {
 </head>
 <body>
 
-
   <div class="card" id="registro">
-      <div class="logo">
-  <img src="https://bogota.gov.co/sites/default/files/styles/1050px/public/2020-05/simoniz-dos.png" alt="Simoniz Logo">
-</div>
-    <h1>Trivia</h1>
+    <h1>Trivia Simoniz</h1>
     <p>Demuestra cuánto sabes del cuidado automotriz</p>
     <input id="nombre" placeholder="Nombre completo" />
     <input id="telefono" placeholder="Teléfono" />
@@ -164,29 +130,8 @@ button:disabled {
     <p id="mensajeResultado"></p>
     <button onclick="location.reload()">Nueva participación</button>
   </div>
-  <div class="card hidden" id="ruleta">
-  <h1>🎡 Gira la ruleta</h1>
-  <canvas id="wheel" width="300" height="300"></canvas>
-
-  <button id="btnGirar" onclick="girarRuleta()">GIRAR</button>
-
-  <p id="premioFinal"></p>
-
-  <button id="btnVolver" class="hidden" onclick="volverInicio()">
-    Volver al inicio
-  </button>
-</div>
-
-
-
 
 <script>
-console.log("JS cargado");
-const nombreInput = document.getElementById("nombre");
-const telefonoInput = document.getElementById("telefono");
-const correoInput = document.getElementById("correo");
-// === GOOGLE APPS SCRIPT ===
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwoRerRi8UZpjIcr5L3PyLJ-iHmQViY3XybDTVp8EkYYZGx1cq8BeEnI_6RcHf0kzA/exec";
 const preguntas = {
   "SIMONIZ & MARCA": [
     { pregunta: "¿Qué representa Simoniz como marca?", opciones: ["Solo limpieza del vehículo", "Cuidado, protección y orgullo por lo que te mueve", "Productos rápidos y económicos"], correcta: 1 },
@@ -214,44 +159,26 @@ const preguntas = {
     { pregunta: "¿Por qué Simoniz encaja bien en un entorno lifestyle como el golf?", opciones: ["Por el precio", "Por la estética, el cuidado y el orgullo personal", "Por moda"], correcta: 1 }
   ]
 };
-  
+
 let categorias = Object.keys(preguntas);
 let index = 0;
 let aciertos = 0;
-let anguloActual = 0;
-let girando = false;
-let inventario = [];
-
-// ====== SELECCIÓN ALEATORIA (CORREGIDO) ======
 let seleccionadas = categorias.map(cat => {
   const banco = preguntas[cat];
   return banco[Math.floor(Math.random() * banco.length)];
 });
 
-// ====== INVENTARIO ======
-async function cargarInventario() {
-  const res = await fetch(SCRIPT_URL);
-  inventario = await res.json();
-  console.log("Inventario cargado:", inventario);
-}
-
-
-// ====== INICIAR ======
 function iniciarTrivia() {
-  console.log("Trivia iniciada");
   document.getElementById('registro').classList.add('hidden');
   document.getElementById('trivia').classList.remove('hidden');
   mostrarPregunta();
 }
 
-// ====== MOSTRAR PREGUNTA ======
 function mostrarPregunta() {
   const cat = categorias[index];
   const q = seleccionadas[index];
-
   document.getElementById('categoria').innerText = cat;
   document.getElementById('pregunta').innerText = q.pregunta;
-
   const cont = document.getElementById('opciones');
   cont.innerHTML = '';
 
@@ -264,12 +191,11 @@ function mostrarPregunta() {
   });
 }
 
-// ====== RESPUESTA ======
 function responder(i) {
-  const opciones = document.querySelectorAll('.option');
+  const opcionesDivs = document.querySelectorAll('.option');
   const correcta = seleccionadas[index].correcta;
 
-  opciones.forEach((div, idx) => {
+  opcionesDivs.forEach((div, idx) => {
     div.classList.add('disabled');
     if (idx === correcta) div.classList.add('correct');
     if (idx === i && i !== correcta) div.classList.add('incorrect');
@@ -281,159 +207,44 @@ function responder(i) {
     index++;
     if (index < categorias.length) mostrarPregunta();
     else mostrarResultado();
-  }, 1600);
+  }, 1200);
 }
 
-// ====== RESULTADO ======
-async function mostrarResultado() {
+function mostrarResultado() {
   document.getElementById('trivia').classList.add('hidden');
+  document.getElementById('resultado').classList.remove('hidden');
 
-  const gana = aciertos >= 3;
-
-  if (gana) {
-    // 👇 MUESTRA RULETA (NO resultado)
-    document.getElementById('ruleta').classList.remove('hidden');
-
-    await cargarInventario();
-    dibujarRuleta();
-
-  } else {
-    // 👇 SOLO SI PIERDE
-    document.getElementById('resultado').classList.remove('hidden');
-    document.getElementById('tituloResultado').innerText = 'Gracias por participar';
-    document.getElementById('mensajeResultado').innerText =
-      'Sigue cuidando tu vehículo con Simoniz.';
-  }
+  const gana = aciertos >= 4;
+  document.getElementById('tituloResultado').innerText = gana ? '¡Ganaste!' : 'Gracias por participar';
+  document.getElementById('mensajeResultado').innerText = gana ? 'Presenta este mensaje y reclama tu premio Simoniz.' : 'Sigue cuidando tu vehículo con Simoniz.';
 }
+// === ENVÍO DE DATOS A GOOGLE SHEETS ===
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxKiHgkUNqQrwyeWKjxwBBwryrhTMiPxkvrYSDbU4EVGYlAk9AwEx0kxCkJWpdu6nZ1/exec";
 
-// ====== RULETA ======
-function premiosDisponibles() {
-  return inventario.filter(p => Number(p.stock) > 0);
+function enviarDatos(resultado) {
+  const data = {
+    nombre: document.getElementById('nombre').value,
+    telefono: document.getElementById('telefono').value,
+    correo: document.getElementById('correo').value,
+    aciertos: aciertos,
+    resultado: resultado
+  };
 
-}
-
-function dibujarRuleta(rotacion = 0, ganador = null) {
-  const premios = premiosDisponibles();
-
-  if (!premios.length) {
-    document.getElementById("premioFinal").innerText =
-      "⚠️ No hay premios disponibles";
-    return;
-  }
-
-  const canvas = document.getElementById("wheel");
-  const ctx = canvas.getContext("2d");
-
-  const total = premios.length;
-  const angulo = (2 * Math.PI) / total;
-
-  ctx.clearRect(0, 0, 300, 300);
-  ctx.save();
-  ctx.translate(150, 150);
-  ctx.rotate(rotacion);
-
-  const colores = ["#FFD100", "#000000", "#FFFFFF"];
-
-  premios.forEach((premio, i) => {
-    ctx.beginPath();
-
-    const colorSector = colores[i % colores.length];
-    ctx.fillStyle = ganador === i ? "#00E676" : colorSector;
-
-    ctx.moveTo(0, 0);
-    ctx.arc(0, 0, 140, angulo * i, angulo * (i + 1));
-    ctx.fill();
-
-    ctx.save();
-    ctx.rotate(angulo * i + angulo / 2);
-
-    ctx.fillStyle = colorSector === "#000000" ? "#FFFFFF" : "#000000";
-    ctx.font = "bold 18px Montserrat";
-    ctx.textAlign = "right";
-    ctx.fillText(premio.nombre, 120, 8);
-
-    ctx.restore();
+  fetch(SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
   });
-
-  ctx.restore();
 }
 
-
-
-function girarRuleta() {
-  if (girando) return;
-  girando = true;
-
-  const vueltas = Math.random() * 5 + 5;
-  const anguloFinal = anguloActual + vueltas * 2 * Math.PI;
-  const duracion = 4000;
-  const inicio = performance.now();
-
-  function animar(t) {
-    const progreso = Math.min((t - inicio) / duracion, 1);
-    anguloActual = anguloFinal * progreso;
-
-    dibujarRuleta(anguloActual);
-
-    if (progreso < 1) requestAnimationFrame(animar);
-    else asignarPremio();
-  }
-
-  requestAnimationFrame(animar);
+// Hook al resultado final
+const _mostrarResultado = mostrarResultado;
+mostrarResultado = function() {
+  const gana = aciertos >= 4;
+  enviarDatos(gana ? 'GANA' : 'NO GANA');
+  _mostrarResultado();
 }
-
-function asignarPremio() {
-  const premios = premiosDisponibles();
-  const total = premios.length;
-  const anguloPorPremio = (2 * Math.PI) / total;
-
-  const anguloNormalizado =
-    (2 * Math.PI - (anguloActual % (2 * Math.PI))) % (2 * Math.PI);
-
-  const ganador = Math.floor(anguloNormalizado / anguloPorPremio);
-
-  // 🔴 DIBUJAR RULETA CON PREMIO RESALTADO
-  dibujarRuleta(anguloActual, ganador);
-
-  const premio = premios[ganador];
-
-  document.getElementById("premioFinal").innerText =
-    "🎉 Ganaste: " + premio.nombre;
-
-  enviarDatos("GANA", premio.nombre);
-  document.getElementById("btnGirar").disabled = true;
-document.getElementById("btnVolver").classList.remove("hidden");
-}
-
-  function resaltarPremio(i) {
-  dibujarRuleta(anguloActual, i);
-}
-function volverInicio() {
-  location.reload(); // reinicio limpio para evento
-}
-function enviarDatos(resultado, premio = "") {
-  const formData = new FormData();
-  formData.append("nombre", nombreInput.value);
-  formData.append("telefono", telefonoInput.value);
-  formData.append("correo", correoInput.value);
-  formData.append("aciertos", aciertos);
-  formData.append("resultado", resultado);
-  formData.append("premio", premio);
-
-  fetch("https://script.google.com/macros/s/AKfycbwoRerRi8UZpjIcr5L3PyLJ-iHmQViY3XybDTVp8EkYYZGx1cq8BeEnI_6RcHf0kzA/exec", {
-    method: "POST",
-    body: formData
-  })
-  .then(r => r.text())
-  .then(txt => console.log("Sheets:", txt))
-  .catch(err => console.error(err));
-}
-
-
-
-
-
-
 </script>
 </body>
 </html>
